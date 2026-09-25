@@ -1,7 +1,3 @@
-import java.util.ArrayList;
-import java.util.Map;
-import java.HashMap;
-
 abstract class Veiculo {
     private String marca;
     private String modelo;
@@ -60,7 +56,7 @@ class VeiculoNovo extends Veiculo {
             "modelo: " + getModelo() +
             "ano: " + getAno() +
             "preco: " + getPreco() +
-            
+
         )
         return String.format("marca: %s %nmodelo: %s %nano: %d %npreco: %.2f", getMarca(), 
         getModelo(), getAno(), getPreco());

@@ -1,10 +1,14 @@
+import java.util.ArrayList;
+import java.util.Map;
+import java.HashMap;
+
 class Concessionaria {
     private Map<String, Veiculo> veiculos;
     private List<Veiculo> vendas;
 
     public Concessionaria(){
-        veiculos = new HashMap<>(); 
-        vendas = new ArrayList<>();
+        this.veiculos = new LinkedHashMap<>(); 
+        this.vendas = new ArrayList<>();
     }
 
     public String getChave(Veiculo veiculo){
