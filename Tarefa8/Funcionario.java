@@ -1,0 +1,25 @@
+public abstract class Funcionario {
+    private String nome;
+    private String matricula;
+    private double salarioBase;
+
+    public Funcionario(String nome, String matricula, double salarioBase) {
+        this.nome = nome;
+        this.matricula = matricula;
+        this.salarioBase = salarioBase;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getMatricula() {
+        return matricula;
+    }
+
+    public double getSalarioBase() {
+        return salarioBase;
+    }
+
+    public abstract double calcularRemuneracao();
+}
