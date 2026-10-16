@@ -1,9 +1,10 @@
 public abstract class Funcionario {
+    
     private String nome;
-    private String matricula;
+    private int matricula;
     private double salarioBase;
 
-    public Funcionario(String nome, String matricula, double salarioBase) {
+    public Funcionario(String nome, int matricula, double salarioBase) {
         this.nome = nome;
         this.matricula = matricula;
         this.salarioBase = salarioBase;
@@ -13,7 +14,7 @@ public abstract class Funcionario {
         return nome;
     }
 
-    public String getMatricula() {
+    public int getMatricula() {
         return matricula;
     }
 

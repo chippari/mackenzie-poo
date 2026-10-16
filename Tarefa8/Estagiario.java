@@ -1,17 +1,16 @@
 public class Estagiario extends Funcionario {
     private String instituicaoEnsino;
 
-    public Estagiario(String nome, String matricula, double salarioBase, String instituicaoEnsino) {
+    public Estagiario(String nome, int matricula, double salarioBase, String instituicaoEnsino){
         super(nome, matricula, salarioBase);
         this.instituicaoEnsino = instituicaoEnsino;
     }
 
-    public String getInstituicaoEnsino() {
+    public String getInstituicaoEnsino(){
         return instituicaoEnsino;
     }
 
-    @Override
-    public double calcularRemuneracao() {
+    public double calcularRemuneracao(){
         return getSalarioBase();
     }
 }

@@ -7,6 +7,6 @@ import java.io.IOException;
 
 public class CadastroProdutos {
     public static void main(String[] args) {
-        String 
+        // String 
     }
 }

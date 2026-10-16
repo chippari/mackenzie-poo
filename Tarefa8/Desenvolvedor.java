@@ -1,12 +1,12 @@
-public class Desenvolvedor extends Funcionario implements Bonificavel {
+public class Desenvolvedor extends Funcionario implements Bonificacao {
     private String linguagemPrincipal;
 
-    public Desenvolvedor(String nome, String matricula, double salarioBase, String linguagemPrincipal) {
+    public Desenvolvedor(String nome, int matricula, double salarioBase, String linguagemPrincipal){
         super(nome, matricula, salarioBase);
         this.linguagemPrincipal = linguagemPrincipal;
     }
 
-    public String getLinguagemPrincipal() {
+    public String getLinguagemPrincipal(){
         return linguagemPrincipal;
     }
 
@@ -16,7 +16,7 @@ public class Desenvolvedor extends Funcionario implements Bonificavel {
     }
 
     @Override
-    public double calcularRemuneracao() {
+    public double calcularRemuneracao(){
         return getSalarioBase() + calcularBonus();
     }
 }

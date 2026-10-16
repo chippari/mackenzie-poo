@@ -1,38 +1,38 @@
-import java.util.ArrayList;
-import java.util.Map;
-import java.HashMap;
+// import java.util.ArrayList;
+// import java.util.Map;
+// import java.HashMap;
 
-class Concessionaria {
-    private Map<String, Veiculo> veiculos;
-    private List<Veiculo> vendas;
+// class Concessionaria {
+//     private Map<String, Veiculo> veiculos;
+//     private List<Veiculo> vendas;
 
-    public Concessionaria(){
-        this.veiculos = new LinkedHashMap<>(); 
-        this.vendas = new ArrayList<>();
-    }
+//     public Concessionaria(){
+//         this.veiculos = new LinkedHashMap<>(); 
+//         this.vendas = new ArrayList<>();
+//     }
 
-    public String getChave(Veiculo veiculo){
-        return (
-            veiculo.getMarca() + "-" +
-            veiculo.getAno() + "-" +
-            veiculo.getModelo() + "-"
-        ).toLowCase();
-    }
+//     public String getChave(Veiculo veiculo){
+//         return (
+//             veiculo.getMarca() + "-" +
+//             veiculo.getAno() + "-" +
+//             veiculo.getModelo() + "-"
+//         ).toLowCase();
+//     }
 
-    public void cadastrarVeiculo(Veiculo veiculo){
-        String chave = gerarChave(veiculo);
-        if (veiculos.containsKey(chave)){
-            System.out.println("Veiculo já cadastrado.")
-        }
+//     public void cadastrarVeiculo(Veiculo veiculo){
+//         String chave = gerarChave(veiculo);
+//         if (veiculos.containsKey(chave)){
+//             System.out.println("Veiculo já cadastrado.")
+//         }
 
-        veiculos.put(chave, veiculo);
-    }
-}
+//         veiculos.put(chave, veiculo);
+//     }
+// }
 
 
 
-public class SistemaConcessionaria {
-    public static void main(String[] args) {
+// public class SistemaConcessionaria {
+//     public static void main(String[] args) {
 
-    }
-}
+//     }
+// }
