@@ -1,43 +1,33 @@
-import java.util.Scanner;
-
 public class Main {
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        BancoLivros banco = new BancoLivros();
-        banco.criarTabela();
-        int opcao = -1;
+        LogManager log1 = LogManager.getInstance();
+        LogManager log2 = LogManager.getInstance();
 
-        while(opcao != 0) {
-            System.out.println("\n1 - Cadastrar livro");
-            System.out.println("2 - Listar livros");
-            System.out.println("0 - Sair");
-            System.out.print("Escolha uma opção: ");
+        System.out.println("--- Teste Singleton ---");
+        System.out.println("log1 e log2 são a mesma instância? " + (log1 == log2));
 
-            try {
-                opcao = Integer.parseInt(sc.nextLine());
+        System.out.println("\n--- Destino: CONSOLE ---");
+        log1.setDestination(LogDestination.CONSOLE);
+        log1.log(LogLevel.INFO, "Aplicação iniciada");
+        log1.log(LogLevel.DEBUG, "Carregando configurações");
+        log1.log(LogLevel.WARNING, "Memória acima de 80%");
+        log1.log(LogLevel.ERROR, "Falha ao conectar no servidor");
 
-                switch(opcao) {
-                    case 1:
-                        System.out.print("Título: ");
-                        String titulo = sc.nextLine();
-                        System.out.print("Autor: ");
-                        String autor = sc.nextLine();
-                        banco.cadastrarLivro(titulo, autor);
-                        break;
-                    case 2:
-                        banco.listarLivros();
-                        break;
-                    case 0:
-                        System.out.println("Saindo do sistema...");
-                        break;
-                    default:
-                        System.out.println("Opção inválida!");
-                }
-            } catch(NumberFormatException e) {
-                System.out.println("Opção inválida!");
-            }
+        System.out.println("\n--- Destino: FILE ---");
+        log2.setDestination(LogDestination.FILE);
+        log2.setFilePath("logs.txt");
+        log2.log(LogLevel.INFO, "Usuário fez login");
+        log2.log(LogLevel.ERROR, "Senha incorreta");
+        System.out.println("Logs gravados no arquivo logs.txt");
+
+        System.out.println("\n--- Destino: MEMORY ---");
+        log1.setDestination(LogDestination.MEMORY);
+        log1.log(LogLevel.INFO, "Pedido criado");
+        log1.log(LogLevel.WARNING, "Estoque baixo");
+        log1.log(LogLevel.DEBUG, "Pedido enviado para pagamento");
+
+        for(LogEntry entry : log1.getLogs()) {
+            System.out.println(entry);
         }
-
-        sc.close();
     }
 }

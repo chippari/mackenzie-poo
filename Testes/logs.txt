@@ -1,0 +1,2 @@
+[30/10/2026 17:30:06] [INFO] Usuário fez login
+[30/10/2026 17:30:06] [ERROR] Senha incorreta
