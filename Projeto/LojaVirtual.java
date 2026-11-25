@@ -43,10 +43,23 @@ public class LojaVirtual {
 }
 
 /**
+ * Qualquer coisa que pode entrar em um pedido ou em um kit:
+ * produto, kit ou produto com adicionais.
+ */
+interface ItemPedido {
+    double getPreco();
+
+    /** Peso em quilogramas. */
+    double getPeso();
+
+    String getDescricao();
+}
+
+/**
  * Produto vendido individualmente.
  * Dois produtos são iguais quando têm o mesmo código.
  */
-class Produto {
+class Produto implements ItemPedido {
     private final String codigo;
     private final String descricao;
     private final double preco;
@@ -63,16 +76,19 @@ class Produto {
         return codigo;
     }
 
-    String getDescricao() {
+    @Override
+    public String getDescricao() {
         return descricao;
     }
 
-    double getPreco() {
+    @Override
+    public double getPreco() {
         return preco;
     }
 
     /** Peso em quilogramas. */
-    double getPeso() {
+    @Override
+    public double getPeso() {
         return peso;
     }
 
@@ -95,44 +111,114 @@ class Produto {
 }
 
 /**
- * Conjunto de produtos vendido com desconto percentual.
- * A equipe de vendas pediu kits que contenham outros kits
- * e itens com adicionais, o que esta classe ainda não aceita.
+ * Conjunto de itens vendido com desconto percentual.
+ * Aceita produtos, outros kits e itens com adicionais.
  */
-class Kit {
+class Kit implements ItemPedido {
     private final String nome;
     private final double percentualDesconto;
-    private final List<Produto> produtos = new ArrayList<>();
+    private final List<ItemPedido> itens = new ArrayList<>();
 
     Kit(String nome, double percentualDesconto) {
         this.nome = nome;
         this.percentualDesconto = percentualDesconto;
     }
 
-    void adicionar(Produto produto) {
-        produtos.add(produto);
+    void adicionar(ItemPedido item) {
+        itens.add(item);
     }
 
-    /** Soma os preços de todos os produtos do kit e aplica o desconto percentual. */
-    double getPreco() {
+    /** Soma os preços de todos os itens do kit e aplica o desconto percentual. */
+    @Override
+    public double getPreco() {
         double soma = 0.0;
-        for (int i = 0; i < produtos.size(); i++) {
-            soma += produtos.get(i).getPreco();
+        for (ItemPedido item : itens) {
+            soma += item.getPreco();
         }
         return soma * (1 - percentualDesconto / 100);
     }
 
-    /** Soma os pesos de todos os produtos do kit, em quilogramas. */
-    double getPeso() {
+    /** Soma os pesos de todos os itens do kit, em quilogramas. */
+    @Override
+    public double getPeso() {
         double soma = 0.0;
-        for (Produto produto : produtos) {
-            soma += produto.getPeso();
+        for (ItemPedido item : itens) {
+            soma += item.getPeso();
         }
         return soma;
     }
 
-    String getDescricao() {
+    @Override
+    public String getDescricao() {
         return "Kit " + nome;
+    }
+}
+
+/**
+ * Base dos adicionais: envolve um item e repassa a ele
+ * o que o adicional não muda.
+ */
+abstract class Adicional implements ItemPedido {
+    protected final ItemPedido item;
+
+    Adicional(ItemPedido item) {
+        this.item = item;
+    }
+
+    @Override
+    public double getPeso() {
+        return item.getPeso();
+    }
+}
+
+/** Embalagem para presente: R$ 5,00. */
+class EmbalagemPresente extends Adicional {
+    EmbalagemPresente(ItemPedido item) {
+        super(item);
+    }
+
+    @Override
+    public double getPreco() {
+        return item.getPreco() + 5.0;
+    }
+
+    @Override
+    public String getDescricao() {
+        return item.getDescricao() + " + embalagem";
+    }
+}
+
+/** Garantia estendida: 10% sobre o preço do item que ela envolve. */
+class GarantiaEstendida extends Adicional {
+    GarantiaEstendida(ItemPedido item) {
+        super(item);
+    }
+
+    @Override
+    public double getPreco() {
+        return item.getPreco() * 1.10;
+    }
+
+    @Override
+    public String getDescricao() {
+        return item.getDescricao() + " + garantia";
+    }
+}
+
+/** Seguro contra roubo: R$ 8,00. */
+class SeguroRoubo extends Adicional {
+    SeguroRoubo(ItemPedido item) {
+        super(item);
+    }
+
+    @Override
+    public double getPreco() {
+        return item.getPreco() + 8.0;
+    }
+
+    @Override
+    public String getDescricao() {
+        return item.getDescricao() + " + seguro";
     }
 }
 
@@ -141,51 +227,39 @@ class Kit {
  * embalagem para presente (R$ 5,00), garantia estendida
  * (10% sobre o preço do produto já somado à embalagem, quando houver)
  * e seguro contra roubo (R$ 8,00).
- * O marketing planeja novos adicionais, como cartão de presente.
+ * Monta os adicionais como decoradores, nessa ordem.
+ * Novos adicionais podem ser usados direto, envolvendo o item.
  */
-class ItemComAdicionais {
-    private final Produto produto;
-    private final boolean embalagem;
-    private final boolean garantia;
-    private final boolean seguro;
+class ItemComAdicionais implements ItemPedido {
+    private final ItemPedido item;
 
     ItemComAdicionais(Produto produto, boolean embalagem, boolean garantia, boolean seguro) {
-        this.produto = produto;
-        this.embalagem = embalagem;
-        this.garantia = garantia;
-        this.seguro = seguro;
-    }
-
-    double getPreco() {
-        double preco = produto.getPreco();
+        ItemPedido montado = produto;
         if (embalagem) {
-            preco += 5.0;
+            montado = new EmbalagemPresente(montado);
         }
         if (garantia) {
-            preco += preco * 0.10;
+            montado = new GarantiaEstendida(montado);
         }
         if (seguro) {
-            preco += 8.0;
+            montado = new SeguroRoubo(montado);
         }
-        return preco;
+        this.item = montado;
     }
 
-    double getPeso() {
-        return produto.getPeso();
+    @Override
+    public double getPreco() {
+        return item.getPreco();
     }
 
-    String getDescricao() {
-        String descricao = produto.getDescricao();
-        if (embalagem) {
-            descricao += " + embalagem";
-        }
-        if (garantia) {
-            descricao += " + garantia";
-        }
-        if (seguro) {
-            descricao += " + seguro";
-        }
-        return descricao;
+    @Override
+    public double getPeso() {
+        return item.getPeso();
+    }
+
+    @Override
+    public String getDescricao() {
+        return item.getDescricao();
     }
 }
 
@@ -260,29 +334,77 @@ class Estoque {
     }
 }
 
+/** Forma de calcular o frete de um pedido. */
+interface EstrategiaFrete {
+    double calcular(double pesoTotal, double subtotal);
+}
+
+/** PAC: R$ 15,00 mais R$ 2,00 por kg. */
+class FretePac implements EstrategiaFrete {
+    @Override
+    public double calcular(double pesoTotal, double subtotal) {
+        return 15.0 + pesoTotal * 2.0;
+    }
+}
+
+/** SEDEX: R$ 25,00 mais R$ 4,00 por kg. */
+class FreteSedex implements EstrategiaFrete {
+    @Override
+    public double calcular(double pesoTotal, double subtotal) {
+        return 25.0 + pesoTotal * 4.0;
+    }
+}
+
+/** TRANSPORTADORA: grátis para subtotal a partir de R$ 300,00; R$ 40,00 abaixo disso. */
+class FreteTransportadora implements EstrategiaFrete {
+    @Override
+    public double calcular(double pesoTotal, double subtotal) {
+        if (subtotal >= 300.0) {
+            return 0.0;
+        }
+        return 40.0;
+    }
+}
+
+/**
+ * Formas de entrega disponíveis, pelo nome.
+ * Uma forma nova entra com uma classe nova e uma linha de cadastro.
+ */
+class TiposDeFrete {
+    private static final Map<String, EstrategiaFrete> tipos = new HashMap<>();
+
+    static {
+        tipos.put("PAC", new FretePac());
+        tipos.put("SEDEX", new FreteSedex());
+        tipos.put("TRANSPORTADORA", new FreteTransportadora());
+    }
+
+    /** Devolve a estratégia do nome informado, ou null se ele não existir. */
+    static EstrategiaFrete buscar(String nome) {
+        return tipos.get(nome);
+    }
+}
+
 /** Pedido de compra. Aceita produtos, kits e itens com adicionais. */
 class Pedido {
     private final String tipoFrete;
-    private final List<Object> itens = new ArrayList<>();
+    private final EstrategiaFrete estrategiaFrete;
+    private final List<ItemPedido> itens = new ArrayList<>();
     private Cupom cupom;
     private boolean finalizado;
 
     /** @param tipoFrete PAC, SEDEX ou TRANSPORTADORA */
     Pedido(String tipoFrete) {
         this.tipoFrete = tipoFrete;
+        this.estrategiaFrete = TiposDeFrete.buscar(tipoFrete);
     }
 
-    void adicionar(Produto produto) {
-        verificarAberto();
-        itens.add(produto);
+    Pedido(EstrategiaFrete estrategiaFrete) {
+        this.tipoFrete = estrategiaFrete.getClass().getSimpleName();
+        this.estrategiaFrete = estrategiaFrete;
     }
 
-    void adicionar(Kit kit) {
-        verificarAberto();
-        itens.add(kit);
-    }
-
-    void adicionar(ItemComAdicionais item) {
+    void adicionar(ItemPedido item) {
         verificarAberto();
         itens.add(item);
     }
@@ -315,54 +437,26 @@ class Pedido {
 
     double calcularSubtotal() {
         double subtotal = 0.0;
-        for (Object item : itens) {
-            if (item instanceof Produto) {
-                subtotal += ((Produto) item).getPreco();
-            } else if (item instanceof Kit) {
-                subtotal += ((Kit) item).getPreco();
-            } else if (item instanceof ItemComAdicionais) {
-                subtotal += ((ItemComAdicionais) item).getPreco();
-            }
+        for (ItemPedido item : itens) {
+            subtotal += item.getPreco();
         }
         return subtotal;
     }
 
     double calcularPesoTotal() {
         double peso = 0.0;
-        for (Object item : itens) {
-            if (item instanceof Produto) {
-                peso += ((Produto) item).getPeso();
-            } else if (item instanceof Kit) {
-                peso += ((Kit) item).getPeso();
-            } else if (item instanceof ItemComAdicionais) {
-                peso += ((ItemComAdicionais) item).getPeso();
-            }
+        for (ItemPedido item : itens) {
+            peso += item.getPeso();
         }
         return peso;
     }
 
-    /**
-     * Calcula o frete do pedido.
-     * PAC: R$ 15,00 mais R$ 2,00 por kg.
-     * SEDEX: R$ 25,00 mais R$ 4,00 por kg.
-     * TRANSPORTADORA: grátis para subtotal a partir de R$ 300,00; R$ 40,00 abaixo disso.
-     * A loja negocia novas formas de entrega com frequência.
-     */
+    /** Calcula o frete do pedido com a estratégia escolhida. */
     double calcularFrete() {
-        double peso = calcularPesoTotal();
-        switch (tipoFrete) {
-            case "PAC":
-                return 15.0 + peso * 2.0;
-            case "SEDEX":
-                return 25.0 + peso * 4.0;
-            case "TRANSPORTADORA":
-                if (calcularSubtotal() >= 300.0) {
-                    return 0.0;
-                }
-                return 40.0;
-            default:
-                throw new IllegalArgumentException("Tipo de frete inválido: " + tipoFrete);
+        if (estrategiaFrete == null) {
+            throw new IllegalArgumentException("Tipo de frete inválido: " + tipoFrete);
         }
+        return estrategiaFrete.calcular(calcularPesoTotal(), calcularSubtotal());
     }
 
     /** Subtotal com o desconto do cupom, quando houver, mais o frete. */
